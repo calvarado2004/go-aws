@@ -26,7 +26,7 @@ func ec2Instance() error {
 		return err
 	}
 
-	fmt.Printf("New EC2 instance created. Instance ID: %s\n", instanceId)
+	log.Printf("New EC2 instance created. Instance ID: %s\n", instanceId)
 
 	return nil
 
