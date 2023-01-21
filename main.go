@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	"log"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -25,7 +26,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("New EC2 instance created. Instance ID: %s", instanceId)
+	fmt.Printf("New EC2 instance created. Instance ID: %s\n", instanceId)
 
 }
 
@@ -44,17 +45,29 @@ func createEC2Instance(ctx context.Context, region string) (instanceCreated stri
 	keyPair, err := ec2client.DescribeKeyPairs(ctx, &ec2.DescribeKeyPairsInput{
 		KeyNames: []string{"go-aws-key"},
 	})
+	if err != nil && !strings.Contains(err.Error(), "InvalidKeyPair.NotFound") {
+		log.Fatalf("Unable to describe key pair, %v", err)
+		return "", err
+	}
 
-	idExistent := *keyPair.KeyPairs[0].KeyName
-
-	if idExistent == "" {
-		_, err = ec2client.CreateKeyPair(ctx, &ec2.CreateKeyPairInput{
+	// If the key pair doesn't exist, create it and save the private key to a file
+	if keyPair == nil || len(keyPair.KeyPairs) == 0 {
+		keyPairCreated, err := ec2client.CreateKeyPair(ctx, &ec2.CreateKeyPairInput{
 			KeyName: aws.String("go-aws-key"),
 		})
 		if err != nil {
 			log.Printf("Unable to create key pair, %v", err)
 			return "", err
 		}
+
+		err = os.WriteFile("go-aws-key.pem", []byte(*keyPairCreated.KeyMaterial), 0600)
+		if err != nil {
+			log.Printf("Unable to save key pair to disk, %v", err)
+			return "", err
+		}
+
+		log.Printf("Key pair created %s and saved into file go-aws-key.pem", *keyPairCreated.KeyName)
+
 	}
 
 	// Create an EC2 instance with the key pair
