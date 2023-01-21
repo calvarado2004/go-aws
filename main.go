@@ -4,8 +4,12 @@ import "log"
 
 func main() {
 
-	//ec2Instance()
-	err := s3BucketMain()
+	err := ec2Instance()
+	if err != nil {
+		log.Fatalf("error creating EC2 instance: %v", err)
+	}
+
+	err = s3BucketMain()
 	if err != nil {
 		log.Printf("error creating S3 bucket: %v", err)
 	}

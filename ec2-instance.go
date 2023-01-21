@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-func ec2Instance() {
+func ec2Instance() error {
 
 	var (
 		instanceId string
@@ -23,10 +23,12 @@ func ec2Instance() {
 	instanceId, err = createEC2Instance(ctx, "us-east-1")
 	if err != nil {
 		fmt.Printf("error creating EC2 instance: %v", err)
-		os.Exit(1)
+		return err
 	}
 
 	fmt.Printf("New EC2 instance created. Instance ID: %s\n", instanceId)
+
+	return nil
 
 }
 
