@@ -60,13 +60,13 @@ func createEC2Instance(ctx context.Context, region string) (instanceCreated stri
 			return "", err
 		}
 
-		err = os.WriteFile("go-aws-key.pem", []byte(*keyPairCreated.KeyMaterial), 0600)
+		err = os.WriteFile("../go-aws-key.pem", []byte(*keyPairCreated.KeyMaterial), 0600)
 		if err != nil {
 			log.Printf("Unable to save key pair to disk, %v", err)
 			return "", err
 		}
 
-		log.Printf("Key pair created %s and saved into file go-aws-key.pem", *keyPairCreated.KeyName)
+		log.Printf("Key pair created %s and saved into file ../go-aws-key.pem", *keyPairCreated.KeyName)
 
 	}
 
