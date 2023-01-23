@@ -5,7 +5,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	uuid "github.com/nu7hatch/gouuid"
 	"io"
 	"log"
 	"os"
@@ -21,8 +20,10 @@ func s3BucketMain() error {
 		log.Printf("error initializing %s", err)
 	}
 
-	u, err := uuid.NewV4()
-	s3Name := "go-aws-s3-" + u.String()
+	//u, err := uuid.NewV4()
+	//s3Name := "go-aws-s3-" + u.String()
+
+	s3Name := "go-aws-s3-bucket"
 
 	err = createS3Bucket(ctx, s3Client, s3Name)
 	if err != nil {
