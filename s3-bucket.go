@@ -11,6 +11,11 @@ import (
 	"strings"
 )
 
+type S3Client interface {
+	ListBuckets(ctx context.Context, params *s3.ListBucketsInput, optFns ...func(*s3.Options)) (*s3.ListBucketsOutput, error)
+	CreateBucket(ctx context.Context, params *s3.CreateBucketInput, optFns ...func(*s3.Options)) (*s3.CreateBucketOutput, error)
+}
+
 // s3BucketMain creates an S3 bucket with an uuid name appended to the bucket name
 func s3BucketMain() error {
 
@@ -64,7 +69,7 @@ func initS3Client(context context.Context, region string) (*s3.Client, error) {
 }
 
 // createS3Bucket creates an S3 bucket
-func createS3Bucket(context context.Context, s3Client *s3.Client, bucketName string) error {
+func createS3Bucket(context context.Context, s3Client S3Client, bucketName string) error {
 
 	allBuckets, err := s3Client.ListBuckets(context, &s3.ListBucketsInput{})
 	if err != nil {
