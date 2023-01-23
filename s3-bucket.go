@@ -36,6 +36,18 @@ func s3BucketMain() error {
 		return err
 	}
 
+	fileReceived, err := downloadFromS3Bucket(ctx, s3Client, s3Name, "test.txt")
+	if err != nil {
+		log.Printf("error downloading from S3 bucket: %v", err)
+		return err
+	}
+
+	err = os.WriteFile("./test-received.txt", fileReceived, 0644)
+	if err != nil {
+		log.Printf("error writing file: %v", err)
+		return err
+	}
+
 	return nil
 }
 
@@ -109,4 +121,32 @@ func uploadToS3Bucket(ctx context.Context, s3Client *s3.Client, bucketName strin
 	log.Printf("file uploaded to S3 bucket: %s", uploadResult.Location)
 
 	return nil
+}
+
+// downloadFromS3Bucket downloads a file from an S3 bucket
+func downloadFromS3Bucket(ctx context.Context, s3Client *s3.Client, bucketName string, fileName string) ([]byte, error) {
+
+	downloader := manager.NewDownloader(s3Client)
+
+	buffer := manager.NewWriteAtBuffer([]byte{})
+
+	downloadResult, err := downloader.Download(ctx, buffer, &s3.GetObjectInput{
+		Bucket: &bucketName,
+		Key:    &fileName,
+	})
+
+	if err != nil {
+		log.Printf("error downloading file from S3 bucket: %v", err)
+		return nil, err
+	}
+
+	bytesReceived := int64(len(buffer.Bytes()))
+
+	if bytesReceived != downloadResult {
+		log.Printf("number of bytes received %d does not match the number of bytes downloaded %d", bytesReceived, downloadResult)
+		return nil, nil
+	}
+
+	return buffer.Bytes(), nil
+
 }
